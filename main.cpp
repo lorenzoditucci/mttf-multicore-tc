@@ -14,7 +14,36 @@
 *
 *
 *
-
 *	[1] Reinforcement Learning-Based Inter- and Intra-Application Thermal Optimization for Lifetime Improvement of Multicore Systems
 *	[2] S. Downing and D. Socie. Simple Rainflow Counting Algorithms. International Journal of Fatigue, 1982.
 */
+
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include "rainflow.h"
+
+int main(int argc, char *argv[]){
+	printf("start");
+	int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
+	int i[1];
+	i[0] = 0;
+
+	/*
+	used for debugging
+	printf("%d\n", i[0]);
+	while(true){
+		int res = read_next_peak_valley(temperatures, i, 10);
+
+		if(res != -1){
+			printf("%d \n", res);
+		}else{
+			printf("END\n");
+			return 0;
+		}
+	}
+	*/
+	
+	
+	return -1;
+}

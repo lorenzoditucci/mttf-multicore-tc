@@ -16,6 +16,8 @@
 *
 *	[1] Reinforcement Learning-Based Inter- and Intra-Application Thermal Optimization for Lifetime Improvement of Multicore Systems
 *	[2] S. Downing and D. Socie. Simple Rainflow Counting Algorithms. International Journal of Fatigue, 1982.
+*
+* 	Lorenzo Di Tucci <personal AT lorenzoditucci.com>
 */
 
 #include <iostream>

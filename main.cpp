@@ -25,11 +25,23 @@
 #include <cstdlib>
 #include "rainflow.h"
 
+using namespace std;
+
 int main(int argc, char *argv[]){
 	printf("start");
+	int *N = 10;
+	N[0] = 10;
 	int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
 	int i[1];
 	i[0] = 0;
+
+	int Ntc = rainflow_algorithm(temperatures, N);
+
+	if(Ntc == -1){
+		printf("error in cycle calculation!");
+		return -1;
+	}
+	printf("Number of Cycles : %d \n", Ntc);
 
 	/*
 	used for debugging
@@ -47,5 +59,5 @@ int main(int argc, char *argv[]){
 	*/
 	
 	
-	return -1;
+	return 0;
 }

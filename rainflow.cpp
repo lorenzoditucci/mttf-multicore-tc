@@ -16,16 +16,17 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 
 using namespace std;
 
-int rainflow_algorithm(int *temperatures, int *N){
+int rainflow_algorithm(int *temperatures, int N){
 	int i = 0; //index for e
-	int *j = 0; //index for temperatures
+	int *j = (int *)malloc(sizeof(int)); //index for temperatures
+    j[0] = 0;
 	int s = 0; //starting peak/valley
 	int s_i = 0; //index for S
 	
 	//list<int> e;
 	list<int> X;
 	list<int> Y;
-	int *e = (int *)malloc(sizeof(int) * N[0]); //vector of peak/valleys
+	int *e = (int *)malloc(sizeof(int) * N); //vector of peak/valleys
 	//int *X = (int *)malloc(sizeof(int) * N[0]); //range under consideration
 	//int *Y = (int *)malloc(sizeof(int) * N[0]); //previous range adjacent to X
 	int tempValX = 0;
@@ -38,7 +39,7 @@ int rainflow_algorithm(int *temperatures, int *N){
 	while(true){
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
-						e[i] = read_next_peak_valley(temperatures, j, N[0]); 
+						e[i] = read_next_peak_valley(temperatures, j, N); 
 						if(e[i] == -1){
 							curr_state = READ6;
 							e[i] = 0;
@@ -109,14 +110,19 @@ int rainflow_algorithm(int *temperatures, int *N){
 						return -1;
 			case MOVE_S4: //Move S to the next point in the vector Go to Step 1
 						s_i++;
+                        if(s_i > N){
+                            printf("ERROR! INDEX OUT OF BOUND s_i is %d \n", s_i);
+                            return -1;
+                        }
 						s = e[s_i];
+                        curr_state = READ1;
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
 						count++;
 						//discard mean remove from vector
 						i = clean_reorganize(e, i, Y.front(), Y.back());
 						if(i == -1){
-							printf("error, debug != 2");
+							printf("error, debug != 2\n");
 							return -1;
 						}
 						curr_state = FORM_RANGED_X_Y2;

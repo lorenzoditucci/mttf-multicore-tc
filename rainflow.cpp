@@ -18,6 +18,7 @@ using namespace std;
 
 int rainflow_algorithm(int *temperatures, int N){
 	int i = 0; //index for e
+    int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
     j[0] = 0;
 	int s = 0; //starting peak/valley
@@ -26,7 +27,7 @@ int rainflow_algorithm(int *temperatures, int N){
 	//list<int> e;
 	list<int> X;
 	list<int> Y;
-	int *e = (int *)malloc(sizeof(int) * N); //vector of peak/valleys
+	int *e = (int *)malloc(sizeof(int) * 2*N); //vector of peak/valleys
 	//int *X = (int *)malloc(sizeof(int) * N[0]); //range under consideration
 	//int *Y = (int *)malloc(sizeof(int) * N[0]); //previous range adjacent to X
 	int tempValX = 0;
@@ -39,7 +40,8 @@ int rainflow_algorithm(int *temperatures, int N){
 	while(true){
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
-						e[i] = read_next_peak_valley(temperatures, j, N); 
+						e[i] = read_next_peak_valley(temperatures, j, N);
+                        printf("read %d, from e \n", e[i]);
 						if(e[i] == -1){
 							curr_state = READ6;
 							e[i] = 0;
@@ -128,11 +130,14 @@ int rainflow_algorithm(int *temperatures, int N){
 						curr_state = FORM_RANGED_X_Y2;
 						break;
 			case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
-						i = 0;
+                        e[i] = e[s_i];
+                        printf("read %d, from e \n", e[i]);
 						if(e[i] == s){
 							//STOP, end of program, return count!
 							return count;
 						}
+                        i++;
+                        i_6++;
 
 						curr_state = FORM_RANGED_X_Y7;
 						break;

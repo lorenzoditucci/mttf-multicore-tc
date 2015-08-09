@@ -10,4 +10,6 @@ include_directories(../mttf-multicore-tc)
 add_executable(mttf-multicore
 				rainflow.cpp
 				rainflow.h
+                cycles.h
+                cycles.cpp
                 main.cpp)

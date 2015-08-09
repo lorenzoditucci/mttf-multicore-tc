@@ -45,7 +45,7 @@ int rainflow_algorithm(int *temperatures, int N){
 						if(e[i] == -1){
 							curr_state = READ6;
 							e[i] = 0;
-							i--;
+							//i--;
 							break;
 						}
 						if(i == 0){
@@ -130,7 +130,8 @@ int rainflow_algorithm(int *temperatures, int N){
 						curr_state = FORM_RANGED_X_Y2;
 						break;
 			case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
-                        e[i] = e[s_i];
+                        //ALWAYS FROM THE BEGINNING????????
+                        e[i] = e[i_6];
                         printf("read %d, from e \n", e[i]);
 						if(e[i] == s){
 							//STOP, end of program, return count!
@@ -201,19 +202,27 @@ remove the values from e and return the new index
 int clean_reorganize(int *e, int i, int val1, int val2){
 	//s stays at the same place
 	int debug = 0;
-	for(int j= i-1; j>=0 && debug < 2; j--){
+    //if two values with the same value at the end of the queue?
+    //try just removing the second to the least and the one before!!!
+	
+    e[i-3] = e[i-1];
+    i = i-2;
+    /*
+    for(int j= i-1; j>=0 && debug < 2; j--){
 		if(e[j] == val1 || e[j] == val2){
 			e[j] = e[j+1];
 			debug++;
 		}
 	}
-
+    
 	if(debug != 2){
 		return -1;
 	}
-
 	i = i-2;
-
+     */
+    for(int k = 0; k<i; k++){
+        printf("\n e : %d \n", e[k]);
+    }
 	return i;
 }
 

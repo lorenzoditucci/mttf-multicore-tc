@@ -1,6 +1,5 @@
 #include "rainflow.h"
 
-
 static const int READ1 = 1;
 static const int FORM_RANGED_X_Y2 = 2;
 static const int COMPARE3 = 3;
@@ -16,7 +15,7 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 
 using namespace std;
 
-int rainflow_algorithm(int *temperatures, int N){
+list<Cycles> rainflow_algorithm(int *temperatures, int N){
 	int i = 0; //index for e
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
@@ -24,6 +23,8 @@ int rainflow_algorithm(int *temperatures, int N){
 	int s_i = 0; //index for the head (S)
 
 	bool end = false;
+
+	Cycles cycle;
 	
 	//list<int> e;
 	list<int> X;
@@ -37,6 +38,8 @@ int rainflow_algorithm(int *temperatures, int N){
 	int count = 0; //number of cycles counted
 
 	int curr_state = 1; 
+
+	list<Cycles> cycles;
 
 	while(true){
 			//print_vector(e, i, s);
@@ -110,12 +113,16 @@ int rainflow_algorithm(int *temperatures, int N){
 						}
 
 						printf("ERROR!");
-						return -1;
+						cycle = create_error_cycle(cycle);
+						cycles.push_back(cycle);
+						return cycles;
 			case MOVE_S4: //Move S to the next point in the vector Go to Step 1
 						s_i++;
                         if(s_i > N){
                             printf("ERROR! INDEX OUT OF BOUND s_i is %d \n", s_i);
-                            return -1;
+                            cycle = create_error_cycle(cycle);
+							cycles.push_back(cycle);
+                            return cycles;
                         }
 						//s = e[s_i];
                         //printf("STEP 4 - moving S, now is %d\n", s);
@@ -123,11 +130,24 @@ int rainflow_algorithm(int *temperatures, int N){
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
 						count++;
+						printf("\n5range %d", abs(e[Y.back()] - e[Y.front()]));
+
+						cycle.setTemp1(e[Y.back()]);
+						cycle.setTemp2(e[Y.front()]);
+						cycle.setRange(abs(e[Y.back()] - e[Y.front()]));
+
+						cycles.push_back(cycle);
+
+						cout << " Data is :" << cycle.temp1;
+						cout << " and " << cycle.temp2 << endl;
+
 						//discard mean remove from vector
 						i = clean_reorganize(e, i);
 						if(i == -1){
 							printf("error, debug != 2\n");
-							return -1;
+							cycle = create_error_cycle(cycle);
+							cycles.push_back(cycle);
+							return cycles;
 						}
 						curr_state = FORM_RANGED_X_Y2;
 						break;
@@ -151,7 +171,7 @@ int rainflow_algorithm(int *temperatures, int N){
 						
 						if(i - (s_i + 1) < 2){
 							if(end == true){
-								return count;
+								return cycles;
 							}
 							curr_state = READ6;
 							if(i == 2){
@@ -178,7 +198,7 @@ int rainflow_algorithm(int *temperatures, int N){
 
 						if(tempValX < tempValY){
 							if(end == true){
-								return count;
+								return cycles;
 							}
 							curr_state = READ6;
 						}else{
@@ -188,10 +208,23 @@ int rainflow_algorithm(int *temperatures, int N){
 			case COUNT_DISCARD9: //Count range Y Discard the peak and valley of Y Go to Step 7
 
 						count++;
+						printf("\n9range %d", abs(e[Y.back()] - e[Y.front()]));
+
+						cycle.setTemp1(e[Y.back()]);
+						cycle.setTemp2(e[Y.front()]);
+						cycle.setRange(abs(e[Y.back()] - e[Y.front()]));
+						
+						cycles.push_back(cycle);
+
+						cout << " Data is :" << cycle.temp1;
+						cout << " and " << cycle.temp2 << endl;
+
 						i = clean_reorganize(e, i);
 						if(i == -1){
 							printf("error, debug != 2");
-							return -1;
+							cycle = create_error_cycle(cycle);
+							cycles.push_back(cycle);
+							return cycles;
 						}
 						curr_state = FORM_RANGED_X_Y7;
 						break;
@@ -199,7 +232,9 @@ int rainflow_algorithm(int *temperatures, int N){
 		}
 	}
 
-	return -1;
+	cycle = create_error_cycle(cycle);
+	cycles.push_back(cycle);
+	return cycles;
 	
 
 }
@@ -271,4 +306,11 @@ void print_vector(int *e, int N, int s){
         printf(" %d ", e[i]);
     }
     printf("\n");
+}
+
+Cycles create_error_cycle(Cycles cycle){
+	cycle.setTemp1(-1);
+	cycle.setTemp2(-1);
+	cycle.setRange(-1);
+	return cycle;
 }

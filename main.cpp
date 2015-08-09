@@ -29,20 +29,21 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 	printf("start");
-	int N = 19;
+	int N = 29;
 	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
-	int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
+	//int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
     //int temperatures[8] = {10,2,12,4,12,2,4,-10};
+    int temperatures[29] = { 0, 5, 6, 5, 3, 2, 6, 8, 7, 6, 8, 9, 7, 5, 8, 9,1, 8, 4, 3, 4, 5, 6, 7, 5, 4, 6, 2, 0};
 	int i[1];
 	i[0] = 0;
 
-	int Ntc = rainflow_algorithm(temperatures, N);
+	list<Cycles> cycles = rainflow_algorithm(temperatures, N);
 
-	if(Ntc == -1){
+	if(cycles.back().temp1 == -1 && cycles.back().temp2 == -1 && cycles.back().range == -1){
 		printf("error in cycle calculation!");
 		return -1;
 	}
-	printf("Number of Cycles : %d \n", Ntc);
+	//printf("Number of Cycles : %d \n", Ntc);
 
 	/*
 	used for debugging

@@ -21,8 +21,9 @@ int rainflow_algorithm(int *temperatures, int N){
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
     j[0] = 0;
-	int s = 0; //starting peak/valley
-	int s_i = 0; //index for S
+	int s_i = 0; //index for the head (S)
+
+	bool end = false;
 	
 	//list<int> e;
 	list<int> X;
@@ -38,10 +39,10 @@ int rainflow_algorithm(int *temperatures, int N){
 	int curr_state = 1; 
 
 	while(true){
+			//print_vector(e, i, s);
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						e[i] = read_next_peak_valley(temperatures, j, N);
-                        printf("read %d, from e \n", e[i]);
 						if(e[i] == -1){
 							curr_state = READ6;
 							e[i] = 0;
@@ -49,7 +50,7 @@ int rainflow_algorithm(int *temperatures, int N){
 							break;
 						}
 						if(i == 0){
-							s = e[i];
+							//s = e[i];
 							s_i = i;
 						}
 						i++;
@@ -61,22 +62,22 @@ int rainflow_algorithm(int *temperatures, int N){
 						X.clear();
 						Y.clear();
 
-						if(i < 3){
+						if(i - (s_i + 1) < 2){
 							curr_state = READ1;
 							if(i == 2){
-								X.push_back(e[i-2]);
-								X.push_back(e[i-1]);
+								X.push_back(i-2);
+								X.push_back(i-1);
 							}else if(i ==1){
-								X.push_back(e[i-1]);
+								X.push_back(i-1);
 							}
 							break;
 						}
 						
-						X.push_back(e[i-2]);
-						X.push_back(e[i-1]);
+						X.push_back(i-2);
+						X.push_back(i-1);
 
-						Y.push_back(e[i-3]);
-						Y.push_back(e[i-2]);
+						Y.push_back(i-3);
+						Y.push_back(i-2);
 
 						//otherwise continue
 						curr_state = COMPARE3;
@@ -85,25 +86,25 @@ int rainflow_algorithm(int *temperatures, int N){
 												//	b. IfX=Yand YcontainsS,gotoStep 1
 												//	c. If X > Y and Y containsS, go to Step 4
 												//	d. If X >= Y and Y does not contain S, go to Step 5
-						tempValX = abs(X.front() - X.back());
-						tempValY = abs(Y.front() - Y.back());
+						tempValX = abs(e[X.front()] - e[X.back()]);
+						tempValY = abs(e[Y.front()] - e[Y.back()]);
 
 						if(tempValX < tempValY){
 							curr_state = READ1;
 							break;
 						}
 
-						if(tempValX == tempValY && (s == Y.front() || s == Y.back())){
+						if(tempValX == tempValY && (s_i == Y.front() || s_i == Y.back())){
 							curr_state = READ1;
 							break;
 						}
 
-						if(tempValX > tempValY && (s == Y.front() || s == Y.back())){
+						if(tempValX > tempValY && (s_i == Y.front() || s_i == Y.back())){
 							curr_state = MOVE_S4;
 							break;
 						}
 
-						if(tempValX >= tempValY && !(s == Y.front() || s == Y.back())){
+						if(tempValX >= tempValY && !(s_i == Y.front() || s_i == Y.back())){
 							curr_state = COUNT_DISCARD5;
 							break;
 						}
@@ -116,13 +117,14 @@ int rainflow_algorithm(int *temperatures, int N){
                             printf("ERROR! INDEX OUT OF BOUND s_i is %d \n", s_i);
                             return -1;
                         }
-						s = e[s_i];
+						//s = e[s_i];
+                        //printf("STEP 4 - moving S, now is %d\n", s);
                         curr_state = READ1;
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
 						count++;
 						//discard mean remove from vector
-						i = clean_reorganize(e, i, Y.front(), Y.back());
+						i = clean_reorganize(e, i);
 						if(i == -1){
 							printf("error, debug != 2\n");
 							return -1;
@@ -132,10 +134,10 @@ int rainflow_algorithm(int *temperatures, int N){
 			case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
                         //ALWAYS FROM THE BEGINNING????????
                         e[i] = e[i_6];
-                        printf("read %d, from e \n", e[i]);
-						if(e[i] == s){
+						if(i_6 == s_i){
 							//STOP, end of program, return count!
-							return count;
+							end = true;
+							//return count;
 						}
                         i++;
                         i_6++;
@@ -147,31 +149,37 @@ int rainflow_algorithm(int *temperatures, int N){
 						X.clear();
 						Y.clear();
 						
-						if(i < 3){
+						if(i - (s_i + 1) < 2){
+							if(end == true){
+								return count;
+							}
 							curr_state = READ6;
 							if(i == 2){
-								X.push_back(e[i-2]);
-								X.push_back(e[i-1]);
+								X.push_back(i-2);
+								X.push_back(i-1);
 							}else if(i ==1){
-								X.push_back(e[i-1]);
+								X.push_back(i-1);
 							}
 							break;
 						}
 						
-						X.push_back(e[i-2]);
-						X.push_back(e[i-1]);
+						X.push_back(i-2);
+						X.push_back(i-1);
 
-						Y.push_back(e[i-3]);
-						Y.push_back(e[i-2]);
+						Y.push_back(i-3);
+						Y.push_back(i-2);
 
 						curr_state = COMPARE8;
 			case COMPARE8: //Compare ranges X and Y 
 												//	a. If X < Y, gotoStep6
 												//	b. If X >= Y, gotoStep9
-						tempValX = abs(X.front() - X.back());
-						tempValY = abs(Y.front() - Y.back());
+						tempValX = abs(e[X.front()] - e[X.back()]);
+						tempValY = abs(e[Y.front()] - e[Y.back()]);
 
 						if(tempValX < tempValY){
+							if(end == true){
+								return count;
+							}
 							curr_state = READ6;
 						}else{
 							curr_state = COUNT_DISCARD9;
@@ -180,7 +188,7 @@ int rainflow_algorithm(int *temperatures, int N){
 			case COUNT_DISCARD9: //Count range Y Discard the peak and valley of Y Go to Step 7
 
 						count++;
-						i = clean_reorganize(e, i, Y.front(), Y.back());
+						i = clean_reorganize(e, i);
 						if(i == -1){
 							printf("error, debug != 2");
 							return -1;
@@ -199,30 +207,16 @@ int rainflow_algorithm(int *temperatures, int N){
 /*
 remove the values from e and return the new index
 */
-int clean_reorganize(int *e, int i, int val1, int val2){
-	//s stays at the same place
-	int debug = 0;
-    //if two values with the same value at the end of the queue?
-    //try just removing the second to the least and the one before!!!
+int clean_reorganize(int *e, int i){
+    // removing the second to the least and the one before as are Y values
 	
     e[i-3] = e[i-1];
     i = i-2;
     /*
-    for(int j= i-1; j>=0 && debug < 2; j--){
-		if(e[j] == val1 || e[j] == val2){
-			e[j] = e[j+1];
-			debug++;
-		}
-	}
-    
-	if(debug != 2){
-		return -1;
-	}
-	i = i-2;
-     */
     for(int k = 0; k<i; k++){
         printf("\n e : %d \n", e[k]);
     }
+    */
 	return i;
 }
 
@@ -266,4 +260,15 @@ int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
 	}
 
 	return -1;
+}
+
+
+void print_vector(int *e, int N, int s){
+    printf("\n");
+    printf("the head is %d \n", s);
+    printf("\n");
+    for (int i = 0; i < N; i++) {
+        printf(" %d ", e[i]);
+    }
+    printf("\n");
 }

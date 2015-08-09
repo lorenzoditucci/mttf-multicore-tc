@@ -29,8 +29,10 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 	printf("start");
-	int N = 10;
-	int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
+	int N = 19;
+	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
+	int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
+    //int temperatures[8] = {10,2,12,4,12,2,4,-10};
 	int i[1];
 	i[0] = 0;
 

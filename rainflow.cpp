@@ -16,6 +16,7 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 using namespace std;
 
 list<Cycles> rainflow_algorithm(int *temperatures, int N){
+	cout << "pinguino" <<endl;
 	int i = 0; //index for e
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
@@ -26,7 +27,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 
 	Cycles cycle;
 	
-	//list<int> e;
+	//list<int> e;	
 	list<int> X;
 	list<int> Y;
 	int *e = (int *)malloc(sizeof(int) * 2*N); //vector of peak/valleys
@@ -42,7 +43,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 	list<Cycles> cycles;
 
 	while(true){
-			//print_vector(e, i, s);
+			print_vector(e, i, s_i);
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						e[i] = read_next_peak_valley(temperatures, j, N);
@@ -67,12 +68,15 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 
 						if(i - (s_i + 1) < 2){
 							curr_state = READ1;
+							//inutile assegnamento
+							/*
 							if(i == 2){
 								X.push_back(i-2);
 								X.push_back(i-1);
 							}else if(i ==1){
 								X.push_back(i-1);
 							}
+							*/
 							break;
 						}
 						
@@ -202,6 +206,9 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 							}
 							curr_state = READ6;
 						}else{
+							if(Y.front() == s_i || Y.back() == s_i){
+								s_i--;
+							}
 							curr_state = COUNT_DISCARD9;
 						}
 						break;
@@ -299,8 +306,7 @@ int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
 
 
 void print_vector(int *e, int N, int s){
-    printf("\n");
-    printf("the head is %d \n", s);
+    printf("the head is %d \n", e[s]);
     printf("\n");
     for (int i = 0; i < N; i++) {
         printf(" %d ", e[i]);

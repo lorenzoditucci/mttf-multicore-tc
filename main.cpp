@@ -23,12 +23,16 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <math.h>
 #include "rainflow.h"
+
+int coffin_manson(Cycles cycle);
 
 using namespace std;
 
 int main(int argc, char *argv[]){
-	printf("start");
+	cout << "start" << endl;
+
 	int N = 8;
 	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
 	//int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
@@ -39,12 +43,22 @@ int main(int argc, char *argv[]){
 	i[0] = 0;
 
 	list<Cycles> cycles = rainflow_algorithm(temperatures, N);
+	list<int> Ntci;
 
 	if(cycles.back().temp1 == -1 && cycles.back().temp2 == -1 && cycles.back().range == -1){
 		printf("error in cycle calculation!");
 		return -1;
 	}
-	//printf("Number of Cycles : %d \n", Ntc);
+	
+	cout << cycles.size() << "cycles" << endl;
+
+	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
+		cout << "range " << (*it).range << endl;
+
+		Ntci.push_back(coffin_manson(*it));
+		cout << "Ntci "<<Ntci.back()<<endl;
+	}
+
 
 	/*
 	used for debugging
@@ -63,4 +77,26 @@ int main(int argc, char *argv[]){
 	
 	
 	return 0;
+}
+
+int coffin_manson(Cycles cycle){
+	//Ntc[i] = Atc(dT[i] - Tth)^-b * e^(Eatc/(KTmax[i]))
+
+	//TO _ DO put real temperatures!!!!
+	//variable definition
+	int Atc = 10; //empirically determinedconstant
+	int dTi = abs(cycle.temp1 - cycle.temp2); //amplitude of the ith thermal cycle
+	int Tth = 1; //temperature at which elastic deformation begins
+	int b = 1; //Coffin-Manson exponent constant
+	int Eatc = 125; //activation energy
+	int Tmaxi = max(cycle.temp1, cycle.temp2); //maximum temperature in the ith thermal cycle.
+	int K = 1;
+
+	float Ntci = Atc * (dTi - Tth);
+	//cout << Ntci << " t maxi " << Tmaxi;
+	Ntci = pow(Ntci, -b) * exp(Eatc/(K*Tmaxi));
+	//cout << " " <<Ntci<<endl;
+
+	return Ntci;
+
 }

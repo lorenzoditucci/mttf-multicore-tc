@@ -16,7 +16,6 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 using namespace std;
 
 list<Cycles> rainflow_algorithm(int *temperatures, int N){
-	cout << "pinguino" <<endl;
 	int i = 0; //index for e
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
@@ -43,7 +42,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 	list<Cycles> cycles;
 
 	while(true){
-			print_vector(e, i, s_i);
+			//print_vector(e, i, s_i);
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						e[i] = read_next_peak_valley(temperatures, j, N);
@@ -134,7 +133,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
 						count++;
-						printf("\n5range %d", abs(e[Y.back()] - e[Y.front()]));
+						//printf("\n5range %d", abs(e[Y.back()] - e[Y.front()]));
 
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
@@ -142,8 +141,8 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 
 						cycles.push_back(cycle);
 
-						cout << " Data is :" << cycle.temp1;
-						cout << " and " << cycle.temp2 << endl;
+						//cout << " Data is :" << cycle.temp1;
+						//cout << " and " << cycle.temp2 << endl;
 
 						//discard mean remove from vector
 						i = clean_reorganize(e, i);
@@ -215,7 +214,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 			case COUNT_DISCARD9: //Count range Y Discard the peak and valley of Y Go to Step 7
 
 						count++;
-						printf("\n9range %d", abs(e[Y.back()] - e[Y.front()]));
+						//printf("\n9range %d", abs(e[Y.back()] - e[Y.front()]));
 
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
@@ -223,8 +222,8 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 						
 						cycles.push_back(cycle);
 
-						cout << " Data is :" << cycle.temp1;
-						cout << " and " << cycle.temp2 << endl;
+						//cout << " Data is :" << cycle.temp1;
+						//cout << " and " << cycle.temp2 << endl;
 
 						i = clean_reorganize(e, i);
 						if(i == -1){

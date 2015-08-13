@@ -11,6 +11,10 @@ void Cycles::setTemp2(int temp){
 	temp2 = temp;
 }
 
+void Cycles::setTime(float time_n){
+	time = time_n;
+}
+
 void Cycles::setRange(int temp){
 	range = temp;
 }

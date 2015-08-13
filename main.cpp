@@ -26,9 +26,11 @@
 #include <math.h>
 #include "rainflow.h"
 
-int coffin_manson(Cycles cycle);
-
 using namespace std;
+
+
+int coffin_manson(Cycles cycle);
+float miner_rule(list<int> Ntci, list<Cycles> cycles);
 
 int main(int argc, char *argv[]){
 	cout << "start" << endl;
@@ -52,14 +54,19 @@ int main(int argc, char *argv[]){
 	
 	cout << cycles.size() << "cycles" << endl;
 
-	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
+	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); it++){
 		cout << "range " << (*it).range << endl;
+
+		//fake time
+		(*it).setTime(3.57);
 
 		Ntci.push_back(coffin_manson(*it));
 		cout << "Ntci "<<Ntci.back()<<endl;
 	}
 
+	float MTTF = miner_rule(Ntci, cycles);
 
+	cout << "MTTF " << MTTF << endl;
 	/*
 	used for debugging
 	printf("%d\n", i[0]);
@@ -79,6 +86,28 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
+float miner_rule(list<int> Ntci, list<Cycles> cycles){
+	int m = cycles.size();
+
+	float Ntc = 0.0f;
+	for (std::list<int>::iterator it=Ntci.begin(); it != Ntci.end(); it++){
+		Ntc += (1.0/(*it));
+	}
+	cout << " Ntc " << Ntc << endl;
+	Ntc = m/Ntc;
+
+	cout << "Ntc is "<<Ntc <<endl;
+
+	float MTTF = 0;
+	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
+		MTTF += (*it).time;
+	}
+
+	MTTF = Ntc * MTTF / m;
+
+	return MTTF;
+
+}
 int coffin_manson(Cycles cycle){
 	//Ntc[i] = Atc(dT[i] - Tth)^-b * e^(Eatc/(KTmax[i]))
 

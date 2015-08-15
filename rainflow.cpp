@@ -97,36 +97,16 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 
 						if(tempValX < tempValY){
 							curr_state = READ1;
-							break;
-						}
-
-						if(tempValX == tempValY && (s_i == Y.front() || s_i == Y.back())){
+						}else if(tempValX == tempValY && (s_i == Y.front() || s_i == Y.back())){
 							curr_state = READ1;
-							break;
-						}
-
-						if(tempValX > tempValY && (s_i == Y.front() || s_i == Y.back())){
+						}else if(tempValX > tempValY && (s_i == Y.front() || s_i == Y.back())){
 							curr_state = MOVE_S4;
-							break;
-						}
-
-						if(tempValX >= tempValY && !(s_i == Y.front() || s_i == Y.back())){
+						}else if(tempValX >= tempValY && !(s_i == Y.front() || s_i == Y.back())){
 							curr_state = COUNT_DISCARD5;
-							break;
 						}
-
-						printf("ERROR!");
-						cycle = create_error_cycle(cycle);
-						cycles.push_back(cycle);
-						return cycles;
+						break;
 			case MOVE_S4: //Move S to the next point in the vector Go to Step 1
 						s_i++;
-                        if(s_i > N){
-                            printf("ERROR! INDEX OUT OF BOUND s_i is %d \n", s_i);
-                            cycle = create_error_cycle(cycle);
-							cycles.push_back(cycle);
-                            return cycles;
-                        }
 						//s = e[s_i];
                         //printf("STEP 4 - moving S, now is %d\n", s);
                         curr_state = READ1;
@@ -146,12 +126,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 
 						//discard mean remove from vector
 						i = clean_reorganize(e, i);
-						if(i == -1){
-							printf("error, debug != 2\n");
-							cycle = create_error_cycle(cycle);
-							cycles.push_back(cycle);
-							return cycles;
-						}
+
 						curr_state = FORM_RANGED_X_Y2;
 						break;
 			case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
@@ -226,12 +201,6 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 						//cout << " and " << cycle.temp2 << endl;
 
 						i = clean_reorganize(e, i);
-						if(i == -1){
-							printf("error, debug != 2");
-							cycle = create_error_cycle(cycle);
-							cycles.push_back(cycle);
-							return cycles;
-						}
 						curr_state = FORM_RANGED_X_Y7;
 						break;
 

@@ -31,10 +31,11 @@ using namespace std;
 
 int coffin_manson(Cycles cycle);
 float miner_rule(list<int> Ntci, list<Cycles> cycles);
+void show_usage(string exename);
 
 int main(int argc, char *argv[]){
 	cout << "start" << endl;
-
+	string filename;
 	int N = 8;
 	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
 	//int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
@@ -43,7 +44,26 @@ int main(int argc, char *argv[]){
     //int temperatures[30] = {10,8,24,54,76,99,76,44,52,63,23,56,21,78,43,21,4,5,6,2,1,8,6,5,4,23,72,54,76,100};
 	int i[1];
 	i[0] = 0;
+		
+	if (argc < 3) {
+        show_usage(argv[0]);
+        return 1;
+    	}
+	std::string arg;
+	for(int i = 1; i < argc; i = i + 2){
+		arg = argv[i];
+		cout << "arg " << arg << endl;
+		if(arg == "-h" || arg == "--help"){
+			show_usage(argv[0]);
+		}
+		else if(arg == "-f" || arg == "--file"){
+			filename = argv[i+1];
+		}
+	}
 
+	cout << "filename " << filename << endl;
+	
+	return 0;
 	list<Cycles> cycles = rainflow_algorithm(temperatures, N);
 	list<int> Ntci;
 
@@ -67,6 +87,7 @@ int main(int argc, char *argv[]){
 	float MTTF = miner_rule(Ntci, cycles);
 
 	cout << "MTTF " << MTTF << endl;
+	
 	/*
 	used for debugging
 	printf("%d\n", i[0]);
@@ -128,4 +149,17 @@ int coffin_manson(Cycles cycle){
 
 	return Ntci;
 
+}
+
+void show_usage(string exename){
+	//show how to use the tool
+	
+	cout << "Model for Evaluating MTTF due to Temperature Cycle " << endl;
+	cout << "Course Dependable Systems @ Politecnico di Milano, 2015 "<< endl;
+	cout << "Usage : " << endl;
+	cout << exename << endl;
+	cout << "-h | --help show this help" <<endl;
+	cout << "-f | --file specify input file: <TYPE OF INPUT> " <<endl; //to-do specify type of input!
+
+	return;
 }

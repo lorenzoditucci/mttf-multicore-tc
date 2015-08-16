@@ -16,7 +16,7 @@
 *
 *	[1] Reinforcement Learning-Based Inter- and Intra-Application Thermal Optimization for Lifetime Improvement of Multicore Systems
 *	[2] S. Downing and D. Socie. Simple Rainflow Counting Algorithms. International Journal of Fatigue, 1982.
-*
+*	[3] Steady-State Dynamic Temperature Analysis and Reliability Optimization for Embedded Multiprocessor Systems Ukhov I. et al.
 * 	Lorenzo Di Tucci <personal AT lorenzoditucci.com>
 */
 
@@ -164,14 +164,14 @@ float miner_rule(list<int> Ntci, list<Cycles> cycles){
 int coffin_manson(Cycles cycle){
 	//Ntc[i] = Atc(dT[i] - Tth)^-b * e^(Eatc/(KTmax[i]))
 
-	//TO _ DO put real temperatures!!!!
+	//the variable have been defined following section 9.2 of the paper [3]
 	//variable definition
-	int Atc = 10; //empirically determinedconstant
-	int dTi = abs(cycle.temp1 - cycle.temp2); //amplitude of the ith thermal cycle
-	int Tth = 1; //temperature at which elastic deformation begins
-	int b = 1; //Coffin-Manson exponent constant
-	int Eatc = 125; //activation energy
-	int Tmaxi = max(cycle.temp1, cycle.temp2); //maximum temperature in the ith thermal cycle.
+	int Atc = 1; //***empirically determinedconstant
+	float dTi = abs(cycle.temp1 - cycle.temp2); //amplitude of the ith thermal cycle
+	int Tth = 0; //**temperature at which elastic deformation begins
+	int b = 6; //**Coffin-Manson exponent constant
+	float Eatc = 0.5; //**activation energy
+	float Tmaxi = max(cycle.temp1, cycle.temp2); //maximum temperature in the ith thermal cycle.
 	int K = 1;
 
 	float Ntci = Atc * (dTi - Tth);

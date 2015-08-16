@@ -24,6 +24,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <math.h>
+#include <fstream>
+#include <vector>
+#include <sstream>
 #include "rainflow.h"
 
 using namespace std;
@@ -52,16 +55,45 @@ int main(int argc, char *argv[]){
 	std::string arg;
 	for(int i = 1; i < argc; i = i + 2){
 		arg = argv[i];
-		cout << "arg " << arg << endl;
+		//cout << "arg " << arg << endl;
 		if(arg == "-h" || arg == "--help"){
 			show_usage(argv[0]);
+			return 1;
 		}
 		else if(arg == "-f" || arg == "--file"){
 			filename = argv[i+1];
+		}else{
+			show_usage(argv[0]);
+			return 1;
 		}
 	}
 
 	cout << "filename " << filename << endl;
+	
+	vector<int> temperature;
+	ifstream inputFile (filename, ios::in);
+	if(inputFile.is_open()){
+		string tempString;
+		while(getline(inputFile, tempString)){
+			//cout << "string  " << tempString << endl;
+			istringstream ss(tempString );
+			while (ss)
+    			{
+    				 string s;
+      				 if (!getline( ss, s, ',' )) break;
+      			
+				temperature.push_back(atoi(s.c_str()));
+    			}
+		}
+		inputFile.close();
+	}else{
+		cerr << "Error while Opening " << filename << endl;
+		return -1;
+	}	
+
+	for(int i=0; i<temperature.size(); i++){
+		cout << "temp: " << temperature.at(i) << endl;
+	}
 	
 	return 0;
 	list<Cycles> cycles = rainflow_algorithm(temperatures, N);
@@ -156,6 +188,7 @@ void show_usage(string exename){
 	
 	cout << "Model for Evaluating MTTF due to Temperature Cycle " << endl;
 	cout << "Course Dependable Systems @ Politecnico di Milano, 2015 "<< endl;
+	cout << "Lorenzo Di Tucci <personal AT lorenzoditucci.com >" << endl;
 	cout << "Usage : " << endl;
 	cout << exename << endl;
 	cout << "-h | --help show this help" <<endl;

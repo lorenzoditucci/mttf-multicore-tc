@@ -15,7 +15,7 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 
 using namespace std;
 
-list<Cycles> rainflow_algorithm(int *temperatures, int N){
+list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 	int i = 0; //index for e
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
@@ -29,7 +29,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 	//list<int> e;	
 	list<int> X;
 	list<int> Y;
-	int *e = (int *)malloc(sizeof(int) * 2*N); //vector of peak/valleys
+	float *e = (float *)malloc(sizeof(float) * 2*N); //vector of peak/valleys
 	//int *X = (int *)malloc(sizeof(int) * N[0]); //range under consideration
 	//int *Y = (int *)malloc(sizeof(int) * N[0]); //previous range adjacent to X
 	int tempValX = 0;
@@ -61,7 +61,6 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 						break;
 
 			case FORM_RANGED_X_Y2: //Form ranges X and Y(if the vector contains less than 2 points past the starting point, go to Step I)
-
 						X.clear();
 						Y.clear();
 
@@ -217,7 +216,7 @@ list<Cycles> rainflow_algorithm(int *temperatures, int N){
 /*
 remove the values from e and return the new index
 */
-int clean_reorganize(int *e, int i){
+int clean_reorganize(float *e, int i){
     // removing the second to the least and the one before as are Y values
 	
     e[i-3] = e[i-1];
@@ -231,9 +230,10 @@ int clean_reorganize(int *e, int i){
 }
 
 
-int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
+//int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
+float read_next_peak_valley(vector<float> temperatures, int *startingIndex, int N){
 	if(startingIndex[0] == 0){
-		return temperatures[startingIndex[0]++];
+		return temperatures.at(startingIndex[0]++);
 	}
 
 	if(startingIndex[0] == N){
@@ -242,29 +242,29 @@ int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
 
 
 	//first
-	if(temperatures[startingIndex[0]-1] > temperatures[startingIndex[0]]){
+	if(temperatures.at(startingIndex[0]-1) > temperatures.at(startingIndex[0])){	
 		//previously I found a peak, now I search a valley
 		while(startingIndex[0] < N-1){
-			if(temperatures[startingIndex[0]] < temperatures[startingIndex[0] +1 ]){
-				return temperatures[startingIndex[0]++];
+			if(temperatures.at(startingIndex[0]) < temperatures.at(startingIndex[0] +1 )){
+				return temperatures.at(startingIndex[0]++);
 			}else{
 				startingIndex[0]++;
 			}
 		}
-		return temperatures[startingIndex[0]++];
+		return temperatures.at(startingIndex[0]++);
 
 	}
 
-	if(temperatures[startingIndex[0] -1 ] < temperatures[startingIndex[0]]){
+	if(temperatures.at(startingIndex[0] -1) < temperatures.at(startingIndex[0])){
 		while(startingIndex[0] < N - 1){
-			if(temperatures[startingIndex[0]] > temperatures[startingIndex[0] +1 ]){
-				return temperatures[startingIndex[0]++];
+			if(temperatures.at(startingIndex[0]) > temperatures.at(startingIndex[0] +1 )){
+				return temperatures.at(startingIndex[0]++);
 			}else{
 				startingIndex[0]++;
 			}
 		}
 
-		return temperatures[startingIndex[0]++];
+		return temperatures.at(startingIndex[0]++);
 	}else{
 		return read_next_peak_valley(temperatures, startingIndex, N);
 	}

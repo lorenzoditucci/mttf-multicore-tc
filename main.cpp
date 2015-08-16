@@ -23,7 +23,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <vector>
 #include <sstream>
@@ -32,21 +32,19 @@
 using namespace std;
 
 
-int coffin_manson(Cycles cycle);
-float miner_rule(list<int> Ntci, list<Cycles> cycles);
+float coffin_manson(Cycles cycle);
+float miner_rule(list<float> Ntci, list<Cycles> cycles);
 void show_usage(string exename);
 
 int main(int argc, char *argv[]){
 	cout << "start" << endl;
 	string filename;
-	int N = 8;
+	//int N = 8;
 	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
 	//int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
-    int temperatures[8] = {10,2,12,4,12,2,4,-10};
+   // int temperatures[8] = {10,2,12,4,12,2,4,-10};
     //int temperatures[29] = { 0, 5, 6, 5, 3, 2, 6, 8, 7, 6, 8, 9, 7, 5, 8, 9,1, 8, 4, 3, 4, 5, 6, 7, 5, 4, 6, 2, 0};
     //int temperatures[30] = {10,8,24,54,76,99,76,44,52,63,23,56,21,78,43,21,4,5,6,2,1,8,6,5,4,23,72,54,76,100};
-	int i[1];
-	i[0] = 0;
 		
 	if (argc < 3) {
         show_usage(argv[0]);
@@ -70,7 +68,7 @@ int main(int argc, char *argv[]){
 
 	cout << "filename " << filename << endl;
 	
-	vector<int> temperature;
+	vector<float> temperature;
 	ifstream inputFile (filename, ios::in);
 	if(inputFile.is_open()){
 		string tempString;
@@ -82,7 +80,7 @@ int main(int argc, char *argv[]){
     				 string s;
       				 if (!getline( ss, s, ',' )) break;
       			
-				temperature.push_back(atoi(s.c_str()));
+				temperature.push_back(atof(s.c_str()));
     			}
 		}
 		inputFile.close();
@@ -92,12 +90,13 @@ int main(int argc, char *argv[]){
 	}	
 
 	for(int i=0; i<temperature.size(); i++){
-		cout << "temp: " << temperature.at(i) << endl;
+		cout << " " << temperature.at(i);
 	}
 	
-	return 0;
-	list<Cycles> cycles = rainflow_algorithm(temperatures, N);
-	list<int> Ntci;
+	cout << endl;
+	
+	list<Cycles> cycles = rainflow_algorithm(temperature, temperature.size());
+	list<float> Ntci;
 
 	if(cycles.back().temp1 == -1 && cycles.back().temp2 == -1 && cycles.back().range == -1){
 		printf("error in cycle calculation!");
@@ -111,47 +110,32 @@ int main(int argc, char *argv[]){
 
 		//fake time
 		(*it).setTime(3.57);
-
+		
 		Ntci.push_back(coffin_manson(*it));
+		//cout.precision(20);
 		cout << "Ntci "<<Ntci.back()<<endl;
 	}
 
 	float MTTF = miner_rule(Ntci, cycles);
 
-	cout << "MTTF " << MTTF << endl;
-	
-	/*
-	used for debugging
-	printf("%d\n", i[0]);
-	while(true){
-		int res = read_next_peak_valley(temperatures, i, 10);
-
-		if(res != -1){
-			printf("%d \n", res);
-		}else{
-			printf("END\n");
-			return 0;
-		}
-	}
-	*/
-	
+	cout << "MTTF " << MTTF << endl;	
 	
 	return 0;
 }
 
-float miner_rule(list<int> Ntci, list<Cycles> cycles){
+float miner_rule(list<float> Ntci, list<Cycles> cycles){
 	int m = cycles.size();
 
 	float Ntc = 0.0f;
-	for (std::list<int>::iterator it=Ntci.begin(); it != Ntci.end(); it++){
+	for (std::list<float>::iterator it=Ntci.begin(); it != Ntci.end(); it++){
 		Ntc += (1.0/(*it));
 	}
-	cout << " Ntc " << Ntc << endl;
+	//cout << " Ntc " << Ntc << endl;
 	Ntc = m/Ntc;
 
-	cout << "Ntc is "<<Ntc <<endl;
+	//cout << "Ntc is "<<Ntc <<endl;
 
-	float MTTF = 0;
+	float MTTF = 0.0;
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
 		MTTF += (*it).time;
 	}
@@ -161,7 +145,7 @@ float miner_rule(list<int> Ntci, list<Cycles> cycles){
 	return MTTF;
 
 }
-int coffin_manson(Cycles cycle){
+float coffin_manson(Cycles cycle){
 	//Ntc[i] = Atc(dT[i] - Tth)^-b * e^(Eatc/(KTmax[i]))
 
 	//the variable have been defined following section 9.2 of the paper [3]
@@ -174,7 +158,8 @@ int coffin_manson(Cycles cycle){
 	float Tmaxi = max(cycle.temp1, cycle.temp2); //maximum temperature in the ith thermal cycle.
 	int K = 1;
 
-	float Ntci = Atc * (dTi - Tth);
+	float Ntci = 0.0;
+	Ntci += Atc * (dTi - Tth);
 	//cout << Ntci << " t maxi " << Tmaxi;
 	Ntci = pow(Ntci, -b) * exp(Eatc/(K*Tmaxi));
 	//cout << " " <<Ntci<<endl;

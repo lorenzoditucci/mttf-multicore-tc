@@ -68,19 +68,28 @@ int main(int argc, char *argv[]){
 
 	cout << "filename " << filename << endl;
 	
-	vector<float> temperature;
+	vector<vector<float>> temperature;
+	int counter = 1; //1st temp, 2nd time
+	vector<float> temp;
 	ifstream inputFile (filename, ios::in);
 	if(inputFile.is_open()){
 		string tempString;
 		while(getline(inputFile, tempString)){
-			//cout << "string  " << tempString << endl;
+			cout << "string  " << tempString << endl;
 			istringstream ss(tempString );
 			while (ss)
     			{
     				 string s;
       				 if (!getline( ss, s, ',' )) break;
-      			
-				temperature.push_back(atof(s.c_str()));
+					
+				if(counter % 2 ==0){
+					temp.push_back(atof(s.c_str()));
+					temperature.push_back(temp);
+				}else{
+					temp.clear();
+					temp.push_back(atof(s.c_str()));
+				}
+				counter++;
     			}
 		}
 		inputFile.close();
@@ -90,9 +99,17 @@ int main(int argc, char *argv[]){
 	}	
 
 	for(int i=0; i<temperature.size(); i++){
-		cout << " " << temperature.at(i);
+		cout << " temp && time " << endl;
+		for(int j = 0; j < temperature.at(i).size(); j++)
+			cout << " " << temperature.at(i).at(j);
+		cout << endl;
 	}
-	
+	counter --;
+	if(counter % 2 != 0){
+		cerr << "mismatch in temperature/time, the number is not even " << endl;
+		return 1;
+	}
+	/*
 	cout << endl;
 	
 	list<Cycles> cycles = rainflow_algorithm(temperature, temperature.size());
@@ -119,7 +136,7 @@ int main(int argc, char *argv[]){
 	float MTTF = miner_rule(Ntci, cycles);
 
 	cout << "MTTF " << MTTF << endl;	
-	
+	*/
 	return 0;
 }
 

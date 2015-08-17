@@ -92,12 +92,12 @@ int main(int argc, char *argv[]){
 	
 	cout << cycles.size() << "cycles" << endl;
 	
-	/*
+	
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); it++){
-		cout << "range " << (*it).range << endl;
-
+		cout << "range " << (*it).range;
+		cout << " time " << (*it).time << endl;
 		//fake time
-		(*it).setTime(3.57);
+		//(*it).setTime(3.57);
 		
 		Ntci.push_back(coffin_manson(*it));
 		//cout.precision(20);
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
 	float MTTF = miner_rule(Ntci, cycles);
 
 	cout << "MTTF " << MTTF << endl;	
-	*/
+	
 	return 0;
 }
 
@@ -119,7 +119,7 @@ int load_data_from_file(string filename, vector<float> *temperature, vector<floa
 	if(inputFile.is_open()){
 		string tempString;
 		while(getline(inputFile, tempString)){
-			cout << "string  " << tempString << endl;
+			//cout << "string  " << tempString << endl;
 			istringstream ss(tempString );
 			while (ss)
     			{

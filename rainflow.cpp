@@ -15,7 +15,7 @@ Rainflow algorithm implementation, given an array of temperatures, returns the n
 
 using namespace std;
 
-list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
+list<Cycles> rainflow_algorithm(vector<float> temperatures, vector<float> times,  int N){
 	int i = 0; //index for e
     int i_6 = 0; //index for e when read from the beginning
 	int *j = (int *)malloc(sizeof(int)); //index for temperatures
@@ -30,6 +30,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 	list<int> X;
 	list<int> Y;
 	float *e = (float *)malloc(sizeof(float) * 2*N); //vector of peak/valleys
+	float *t = (float *)malloc(sizeof(float) * 2*N); //vector for the times considered
 	//int *X = (int *)malloc(sizeof(int) * N[0]); //range under consideration
 	//int *Y = (int *)malloc(sizeof(int) * N[0]); //previous range adjacent to X
 	int tempValX = 0;
@@ -37,7 +38,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 
 	int count = 0; //number of cycles counted
 
-	int curr_state = 1; 
+	int curr_state = 1;
 
 	list<Cycles> cycles;
 
@@ -46,9 +47,11 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						e[i] = read_next_peak_valley(temperatures, j, N);
+						t[i] = times.at((*j) - 1);
 						if(e[i] == -1){
 							curr_state = READ6;
 							e[i] = 0;
+							t[i] = 0;
 							//i--;
 							break;
 						}
@@ -117,6 +120,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
 						cycle.setRange(abs(e[Y.back()] - e[Y.front()]));
+						cycle.setTime(t[i-3]);//storing start time of the cycle
 
 						cycles.push_back(cycle);
 
@@ -131,6 +135,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 			case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
                         //ALWAYS FROM THE BEGINNING????????
                         e[i] = e[i_6];
+			t[i] = t[i_6];
 						if(i_6 == s_i){
 							//STOP, end of program, return count!
 							end = true;
@@ -193,6 +198,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, int N){
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
 						cycle.setRange(abs(e[Y.back()] - e[Y.front()]));
+						cycle.setTime(t[i-3]);
 						
 						cycles.push_back(cycle);
 

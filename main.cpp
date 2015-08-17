@@ -31,7 +31,7 @@
 
 using namespace std;
 
-
+int load_data_from_file(string filename, vector<float> *temperature, vector<float> *times);
 float coffin_manson(Cycles cycle);
 float miner_rule(list<float> Ntci, list<Cycles> cycles);
 void show_usage(string exename);
@@ -68,51 +68,21 @@ int main(int argc, char *argv[]){
 
 	cout << "filename " << filename << endl;
 	
-	vector<vector<float>> temperature;
-	int counter = 1; //1st temp, 2nd time
-	vector<float> temp;
-	ifstream inputFile (filename, ios::in);
-	if(inputFile.is_open()){
-		string tempString;
-		while(getline(inputFile, tempString)){
-			cout << "string  " << tempString << endl;
-			istringstream ss(tempString );
-			while (ss)
-    			{
-    				 string s;
-      				 if (!getline( ss, s, ',' )) break;
-					
-				if(counter % 2 ==0){
-					temp.push_back(atof(s.c_str()));
-					temperature.push_back(temp);
-				}else{
-					temp.clear();
-					temp.push_back(atof(s.c_str()));
-				}
-				counter++;
-    			}
-		}
-		inputFile.close();
-	}else{
-		cerr << "Error while Opening " << filename << endl;
-		return -1;
-	}	
+	vector<float> temperature;
+	vector<float> times;
 
-	for(int i=0; i<temperature.size(); i++){
-		cout << " temp && time " << endl;
-		for(int j = 0; j < temperature.at(i).size(); j++)
-			cout << " " << temperature.at(i).at(j);
-		cout << endl;
-	}
-	counter --;
-	if(counter % 2 != 0){
-		cerr << "mismatch in temperature/time, the number is not even " << endl;
+	if(load_data_from_file(filename, &temperature, &times) == -1){
+		cerr << "error while loading the data! " << endl;
 		return 1;
-	}
-	/*
-	cout << endl;
+	}	
 	
-	list<Cycles> cycles = rainflow_algorithm(temperature, temperature.size());
+	for(int i=0; i<temperature.size(); i++){
+		cout << "temperature "<<temperature.at(i) << "time "<<times.at(i) << endl;
+	}
+	
+	cout << endl;
+		
+	list<Cycles> cycles = rainflow_algorithm(temperature,times, temperature.size());
 	list<float> Ntci;
 
 	if(cycles.back().temp1 == -1 && cycles.back().temp2 == -1 && cycles.back().range == -1){
@@ -121,7 +91,8 @@ int main(int argc, char *argv[]){
 	}
 	
 	cout << cycles.size() << "cycles" << endl;
-
+	
+	/*
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); it++){
 		cout << "range " << (*it).range << endl;
 
@@ -140,6 +111,50 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
+int load_data_from_file(string filename, vector<float> *temperature, vector<float> *times){
+	
+	int counter = 1; //1st temp, 2nd time
+	vector<float> temp;
+	ifstream inputFile (filename, ios::in);
+	if(inputFile.is_open()){
+		string tempString;
+		while(getline(inputFile, tempString)){
+			cout << "string  " << tempString << endl;
+			istringstream ss(tempString );
+			while (ss)
+    			{
+    				 string s;
+      				 if (!getline( ss, s, ',' )) break;
+					
+				if(counter % 2 ==0){
+					times[0].push_back(atof(s.c_str()));
+				}else{
+					temperature[0].push_back(atof(s.c_str()));
+				}
+				counter++;
+    			}
+		}
+		inputFile.close();
+	}else{
+		cerr << "Error while Opening " << filename << endl;
+		return -1;
+	}	
+	/*
+	for(int i=0; i<temperature.size(); i++){
+		cout << " temp && time " << endl;
+		for(int j = 0; j < temperature.at(i).size(); j++)
+			cout << " " << temperature.at(i).at(j);
+		cout << endl;
+	}
+	*/
+	counter --;
+	if(counter % 2 != 0){
+		cerr << "mismatch in temperature/time, the number is not even " << endl;
+		return -1;
+	}
+	
+	return 0;
+}
 float miner_rule(list<float> Ntci, list<Cycles> cycles){
 	int m = cycles.size();
 
@@ -194,7 +209,7 @@ void show_usage(string exename){
 	cout << "Usage : " << endl;
 	cout << exename << endl;
 	cout << "-h | --help show this help" <<endl;
-	cout << "-f | --file specify input file: <TYPE OF INPUT> " <<endl; //to-do specify type of input!
+	cout << "-f | --file specify input file: <temperature1, time1,........,temperatureN, timeN> " <<endl; //to-do specify type of input!
 
 	return;
 }

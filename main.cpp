@@ -9,14 +9,15 @@
 *	3) Calculate MTTF using Miner's rule:
 *			MTTF = (1/m)Ntc*sum,i=1 to m (ti)
 *
-*
-*
-*
+*	
+*	The Algorithm Works also in a Dynamic Case, calculating the R as stated in paper [4], formula (5)
+*		R = e ^ -(sum j=1 to i (Tj/ aj(T)))
 *
 *
 *	[1] Reinforcement Learning-Based Inter- and Intra-Application Thermal Optimization for Lifetime Improvement of Multicore Systems
 *	[2] S. Downing and D. Socie. Simple Rainflow Counting Algorithms. International Journal of Fatigue, 1982.
 *	[3] Steady-State Dynamic Temperature Analysis and Reliability Optimization for Embedded Multiprocessor Systems Ukhov I. et al.
+*	[4] A Lightweight and Open-source Framework for the Lifetime Estimation of Multicore Systems, Bolchini C., et Al.
 * 	Lorenzo Di Tucci <personal AT lorenzoditucci.com>
 */
 

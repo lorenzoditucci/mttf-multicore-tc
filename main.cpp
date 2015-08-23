@@ -40,6 +40,7 @@ void show_usage(string exename);
 int main(int argc, char *argv[]){
 	cout << "start" << endl;
 	string filename;
+	char version = 'N';
 	//int N = 8;
 	//int temperatures[10] = {30,25,8,50,3,5,28,45,1,12};
 	//int temperatures[19] = {8,6,3,2,5,10,7,5,6,7,8,10,8,4,2,3,6,0,-10};
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]){
     //int temperatures[29] = { 0, 5, 6, 5, 3, 2, 6, 8, 7, 6, 8, 9, 7, 5, 8, 9,1, 8, 4, 3, 4, 5, 6, 7, 5, 4, 6, 2, 0};
     //int temperatures[30] = {10,8,24,54,76,99,76,44,52,63,23,56,21,78,43,21,4,5,6,2,1,8,6,5,4,23,72,54,76,100};
 		
-	if (argc < 3) {
+	if (argc < 4) {
         show_usage(argv[0]);
         return 1;
     	}
@@ -61,13 +62,19 @@ int main(int argc, char *argv[]){
 		}
 		else if(arg == "-f" || arg == "--file"){
 			filename = argv[i+1];
+		}else if(arg == "-d" || arg == "--dynamic" || arg == "-s" || arg == "--static"){
+			if(arg[1] == '-'){
+				version = arg[2];
+			}else{
+				version = arg[1];
+			}
 		}else{
 			show_usage(argv[0]);
 			return 1;
 		}
 	}
 
-	cout << "filename " << filename << endl;
+	cout << "filename " << filename << " version "<< version << endl;
 	
 	vector<float> temperature;
 	vector<float> times;
@@ -211,6 +218,6 @@ void show_usage(string exename){
 	cout << exename << endl;
 	cout << "-h | --help show this help" <<endl;
 	cout << "-f | --file specify input file: <temperature1, time1,........,temperatureN, timeN> " <<endl; //to-do specify type of input!
-
+	cout << "-d | --dynamic | -s | --static choose the version of the algorithm" << endl;
 	return;
 }

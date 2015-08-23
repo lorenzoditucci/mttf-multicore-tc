@@ -1,11 +1,17 @@
 class Cycles{
+	float temp1;
+	float temp2;
+	float time;
+	float range;
+	
 	public:
-		int temp1;
-		int temp2;
-		float time;
-		int range;
-		void setTemp1(int temp1);
-		void setTemp2(int temp2);
+		void setTemp1(float temp1);
+		void setTemp2(float temp2);
 		void setTime(float time_n);
-		void setRange(int range);
+		void setRange(float range);
+		
+		float getTemp1();
+		float getTemp2();
+		float getTime();
+		float getRange();
 };

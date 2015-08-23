@@ -86,7 +86,7 @@ int main(int argc, char *argv[]){
 	list<Cycles> cycles = rainflow_algorithm(temperature,times, temperature.size());
 	list<float> Ntci;
 
-	if(cycles.back().temp1 == -1 && cycles.back().temp2 == -1 && cycles.back().range == -1){
+	if(cycles.back().getTemp1() == -1 && cycles.back().getTemp2() == -1 && cycles.back().getRange() == -1){
 		printf("error in cycle calculation!");
 		return -1;
 	}
@@ -95,8 +95,8 @@ int main(int argc, char *argv[]){
 	
 	
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); it++){
-		cout << "range " << (*it).range;
-		cout << " time " << (*it).time << endl;
+		cout << "range " << (*it).getRange();
+		cout << " time " << (*it).getTime() << endl;
 		//fake time
 		//(*it).setTime(3.57);
 		
@@ -170,7 +170,7 @@ float miner_rule(list<float> Ntci, list<Cycles> cycles){
 
 	float MTTF = 0.0;
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
-		MTTF += (*it).time;
+		MTTF += (*it).getTime();
 	}
 
 	MTTF = Ntc * MTTF / m;
@@ -184,11 +184,11 @@ float coffin_manson(Cycles cycle){
 	//the variable have been defined following section 9.2 of the paper [3]
 	//variable definition
 	int Atc = 1; //***empirically determinedconstant
-	float dTi = abs(cycle.temp1 - cycle.temp2); //amplitude of the ith thermal cycle
+	float dTi = abs(cycle.getTemp1() - cycle.getTemp2()); //amplitude of the ith thermal cycle
 	int Tth = 0; //**temperature at which elastic deformation begins
 	int b = 6; //**Coffin-Manson exponent constant
 	float Eatc = 0.5; //**activation energy
-	float Tmaxi = max(cycle.temp1, cycle.temp2); //maximum temperature in the ith thermal cycle.
+	float Tmaxi = max(cycle.getTemp1(), cycle.getTemp2()); //maximum temperature in the ith thermal cycle.
 	int K = 1;
 
 	float Ntci = 0.0;

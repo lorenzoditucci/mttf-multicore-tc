@@ -235,6 +235,31 @@ int clean_reorganize(float *e, int i){
 	return i;
 }
 
+/*
+Dynamic algorithm.
+
+takes the new value and the trend, the trend indicate how was the previous value
+0 -> equal //not used
+1 -> greater (searching for a valley)
+2 -> smaller (searching for a peak)
+*/
+
+float read_next_peak_valley_bw(float prevValue, float value, short *trend){
+	if(value > prevValue && trend[0] == 1){
+		//prevValue is a valley, now we search a peak
+		trend[0] = 2;
+		return prevValue;
+	}
+
+	if(value < prevValue && trend[0] == 2){
+		//prevValue is a peak, now we search a valley
+		trend[0] = 1;
+		return prevValue;
+	}
+
+	cout << "Error! " << endl;
+	return -2; //no peak or valley found!
+}
 
 //int read_next_peak_valley(int *temperatures, int *startingIndex, int N){
 float read_next_peak_valley(vector<float> temperatures, int *startingIndex, int N){

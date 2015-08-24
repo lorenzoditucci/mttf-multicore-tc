@@ -28,14 +28,29 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <thread>
 #include "rainflow.h"
 
 using namespace std;
 
+typedef struct TempTimes{
+	vector<float> temperatures;
+	vector<float> times;
+}TempTimes;
+
+streampos check_data_from_file(vector<float> *temperatures, vector<float> *times, streampos  position, string filename, bool *firstRead);	
+void check_input_routine(float *e, float *t, string *filename);
+void printNumbers(TempTimes *tempTimesp);
+int run_dynamic(string filename, vector<float> temperature, vector<float> times);
+int run_static(string filename, vector<float> temperature, vector<float> times);
 int load_data_from_file(string filename, vector<float> *temperature, vector<float> *times);
 float coffin_manson(Cycles cycle);
 float miner_rule(list<float> Ntci, list<Cycles> cycles);
 void show_usage(string exename);
+
+
+
+
 
 int main(int argc, char *argv[]){
 	cout << "start" << endl;
@@ -78,10 +93,185 @@ int main(int argc, char *argv[]){
 	
 	vector<float> temperature;
 	vector<float> times;
+	
+	if(version == 's'){
+		//static version
+		if(run_static(filename, temperature, times) != 0)
+		{
+			cerr << "ERROR: execution failed for previous error!" << endl;
+			return 1;
+		}
+		return 0;	
+	}else if(version == 'd'){
+		if(run_dynamic(filename, temperature, times) != 0){
+			cerr << "ERROR: execution failed due to previous errors!" << endl;
+			return 1;
+		}
+		return 0;
+	}else{//not necessary
+		cerr << "ERROR: no version specified" << endl;
+		show_usage(argv[0]);
+		return 1;
+	}
 
+
+
+	
+}
+
+int run_dynamic(string filename, vector<float> temperature, vector<float> times){
+	
+	TempTimes tempTimes =  TempTimes();
+	
+	float *e;
+	float *t;
+	thread thread_pv(check_input_routine, e, t, &filename);
+	//cout << "first is executing..." << endl;
+	thread_pv.join();
+	
+	//cout << "main function " << tempTimes.temperatures.at(1) << endl;
+	
+
+	return 0;
+}
+
+void check_input_routine(float *e, float *t, string *filename){
+	//read value
+	//check if new value, for each new value...
+	
+	vector<float> temperatures;
+	vector<float> times;
+	short trend = 0;
+	bool first = true;
+	bool firstRead = true;
+	bool end = false;
+	int index = 1;
+	int indexE = 0; //index for e...
+	
+	
+	streampos position;
+	while(end != true){
+		//to-do read from file
+		
+		position = check_data_from_file(&temperatures,&times,  position, filename[0], &firstRead);	
+		
+		cout << "temperatures size is " <<temperatures.size() << endl;
+		
+		cout << "sleep for 5 seconds.... " << endl;
+		this_thread::sleep_for (std::chrono::seconds(5));
+		/*
+		if(temperatures.size() <= index){
+			continue;
+		}
+		if(temperatures.size() < 2){
+			continue;
+		}else if(first) {
+			first = false;
+			if(temperatures.at(index-1) > temperatures.at(index)){
+				trend = 2; //then we give this to the algorithm...
+			}else if(temperatures.at(index-1) < temperatures.at(index)){
+				trend = 1;
+			}else{
+				trend = 0;
+				continue;
+			}
+		}
+		
+		if(temperatures.at(index) == temperatures.at(index-1) && e[indexE] == temperatures.at(index-1)){
+			//update the time, so that we consider the last one
+			t[indexE - 1] = times.at(index); 
+			index++;
+			continue;
+		} 
+
+		e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
+		//update time at index...
+		if(e[indexE] != -2){
+			t[indexE] = times.at(index);
+			indexE++;
+		}
+		index++;
+		*/
+	}		
+}
+
+/*
+new function for reading the file, gives back the position that will be used to start over next time(arabo)
+*/
+streampos check_data_from_file(vector<float> *temperatures, vector<float> *times, streampos  position, string filename, bool *first){
+	int counter = 1; //1st temp, 2nd time
+	vector<float> temp;
+	
+	ifstream inputFile (filename, ios::in);
+	
+	streampos startPos = inputFile.tellg();
+	cout << "start pos is " << startPos << endl;
+	if((*first) == true){
+		position = inputFile.tellg(); //position is the beginning of the file
+		(*first) = false;
+		cout << "first read, now the value is " << (*first) << endl;
+	}
+	if(inputFile.is_open()){
+		cout << "input file open...position is "<<position << endl;
+		inputFile.seekg(position);
+		string tempString;
+		while( getline(inputFile, tempString)){
+			cout << "string  " << tempString << endl;
+			istringstream ss(tempString );
+			while (ss)
+    			{
+    				 string s;
+      				 if (!getline( ss, s, ',' )) break;
+					
+				if(counter % 2 ==0){
+					times[0].push_back(atof(s.c_str()));
+				}else{
+					temperatures[0].push_back(atof(s.c_str()));
+				}
+				counter++;
+    			}
+			position = inputFile.tellg();	
+			cout << "position " << position << endl;
+		}
+		
+		cout << "end, position is " << position << endl;
+		inputFile.close();
+	}else{
+		cerr << "Error while Opening " << filename << endl;
+		return -1;
+	}	
+	/*
+	for(int i=0; i<temperature.size(); i++){
+		cout << " temp && time " << endl;
+		for(int j = 0; j < temperature.at(i).size(); j++)
+			cout << " " << temperature.at(i).at(j);
+		cout << endl;
+	}
+	*/
+	counter --;
+	if(counter % 2 != 0){
+		cerr << "mismatch in temperature/time, the number is not even " << endl;
+		return -1;
+	}
+
+
+
+	return position;
+}
+//used to debug, to remove...
+void printNumbers(TempTimes *tempTimes){
+	//TempTimes *tempTimes = static_cast<TempTimes*>(tempTimesP);
+	for(int i = 0; i< 10; i++){
+		cout << "thread" << " print " << i << endl ;
+	}
+	(*tempTimes).temperatures.push_back(2.0);
+	cout << "pusho dentro funzione thread..." << endl;
+}
+
+int run_static(string filename, vector<float> temperature, vector<float> times){
 	if(load_data_from_file(filename, &temperature, &times) == -1){
 		cerr << "error while loading the data! " << endl;
-		return 1;
+		return -1;
 	}	
 	
 	for(int i=0; i<temperature.size(); i++){

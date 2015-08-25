@@ -39,7 +39,7 @@ typedef struct TempTimes{
 }TempTimes;
 
 streampos check_data_from_file(vector<float> *temperatures, vector<float> *times, streampos  position, string filename, bool *firstRead);	
-void check_input_routine(float *e, float *t, string *filename);
+void check_input_routine(vector<float> *e,vector<float> *t, string *filename);
 void printNumbers(TempTimes *tempTimesp);
 int run_dynamic(string filename, vector<float> temperature, vector<float> times);
 int run_static(string filename, vector<float> temperature, vector<float> times);
@@ -123,8 +123,8 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	
 	TempTimes tempTimes =  TempTimes();
 	
-	float *e;
-	float *t;
+	vector<float> *e = new vector<float>;
+	vector<float> *t = new vector<float>;
 	thread thread_pv(check_input_routine, e, t, &filename);
 	//cout << "first is executing..." << endl;
 	thread_pv.join();
@@ -135,7 +135,7 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	return 0;
 }
 
-void check_input_routine(float *e, float *t, string *filename){
+void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 	//read value
 	//check if new value, for each new value...
 	
@@ -148,24 +148,23 @@ void check_input_routine(float *e, float *t, string *filename){
 	int index = 1;
 	int indexE = 0; //index for e...
 	
-	
+	float tempVal = 0.0;
+	int oldSize = 0;
 	streampos position;
+	int temperatureSize = 0;
+	bool check = false;
 	while(end != true){
-		//to-do read from file
 		
 		position = check_data_from_file(&temperatures,&times,  position, filename[0], &firstRead);	
-		
 		cout << "temperatures size is " <<temperatures.size() << endl;
 		
-		cout << "sleep for 5 seconds.... " << endl;
-		this_thread::sleep_for (std::chrono::seconds(5));
-		/*
-		if(temperatures.size() <= index){
-			continue;
-		}
 		if(temperatures.size() < 2){
-			continue;
+			cout << "size less then 2 .." << endl;
+			//continue;
 		}else if(first) {
+			oldSize = 2;
+			check = true;
+			cout << "first is true " << endl;
 			first = false;
 			if(temperatures.at(index-1) > temperatures.at(index)){
 				trend = 2; //then we give this to the algorithm...
@@ -173,25 +172,54 @@ void check_input_routine(float *e, float *t, string *filename){
 				trend = 1;
 			}else{
 				trend = 0;
-				continue;
+				//continue;
 			}
 		}
-		
-		if(temperatures.at(index) == temperatures.at(index-1) && e[indexE] == temperatures.at(index-1)){
-			//update the time, so that we consider the last one
-			t[indexE - 1] = times.at(index); 
-			index++;
-			continue;
-		} 
 
-		e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
-		//update time at index...
-		if(e[indexE] != -2){
-			t[indexE] = times.at(index);
-			indexE++;
+		for(int i = oldSize -1 ; i < temperatures.size() && temperatures.size() >=2 && oldSize >=2 && check; i++){
+			
+			cout << "inside for, i is " << i << "passing these vlues to function " << temperatures.at(i-1) << " - " << temperatures.at(i) << " trend " << trend << endl;
+			//e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
+			tempVal = read_next_peak_valley_bw(temperatures.at(i-1), temperatures.at(i), &trend);
+			cout << "tempval is " << tempVal;
+			
+			if(temperatures.at(i) == 999){ //fake stop signal
+				if(temperatures.at(i-1) != (*e).at((*e).size()-1)){
+					(*e).push_back(temperatures.at(i-1));	
+					(*t).push_back(times.at(i-1));
+				}
+				cout << " STOP signal received... terminating..." <<endl;
+				end = true;
+				continue;
+			}	
+			//update time at index...
+			if(tempVal != -2){
+				(*e).push_back(tempVal);
+				(*t).push_back(times.at(index));
+				//t[indexE] = times.at(index);
+				indexE++;
+			}
+			oldSize++;
 		}
-		index++;
-		*/
+		
+		cout << "e: ";
+		for(int i = 0; i< (*e).size(); i++){
+			cout <<" " << (*e).at(i);
+		}
+		cout << endl;
+		
+		//index++;
+		temperatureSize = temperatures.empty() ? 0 : temperatures.size();
+		if(temperatureSize == oldSize - 1){
+			check = false;
+		}else{
+			check = true;
+			//oldSize = temperatureSize;
+		}
+		cout << "old size now is " << oldSize << endl; 
+		cout << "sleep for 5 seconds.... " << endl;
+		this_thread::sleep_for (std::chrono::seconds(5));
+
 	}		
 }
 
@@ -204,19 +232,16 @@ streampos check_data_from_file(vector<float> *temperatures, vector<float> *times
 	
 	ifstream inputFile (filename, ios::in);
 	
-	streampos startPos = inputFile.tellg();
-	cout << "start pos is " << startPos << endl;
+	//streampos startPos = inputFile.tellg();
 	if((*first) == true){
 		position = inputFile.tellg(); //position is the beginning of the file
 		(*first) = false;
-		cout << "first read, now the value is " << (*first) << endl;
 	}
 	if(inputFile.is_open()){
-		cout << "input file open...position is "<<position << endl;
 		inputFile.seekg(position);
 		string tempString;
 		while( getline(inputFile, tempString)){
-			cout << "string  " << tempString << endl;
+			//cout << "string  " << tempString << endl;
 			istringstream ss(tempString );
 			while (ss)
     			{
@@ -231,10 +256,8 @@ streampos check_data_from_file(vector<float> *temperatures, vector<float> *times
 				counter++;
     			}
 			position = inputFile.tellg();	
-			cout << "position " << position << endl;
 		}
 		
-		cout << "end, position is " << position << endl;
 		inputFile.close();
 	}else{
 		cerr << "Error while Opening " << filename << endl;

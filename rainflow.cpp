@@ -245,19 +245,27 @@ takes the new value and the trend, the trend indicate how was the previous value
 */
 
 float read_next_peak_valley_bw(float prevValue, float value, short *trend){
-	if(value > prevValue && trend[0] == 1){
+	if(value > prevValue && (trend[0] == 1 || trend[0] == 0)){
 		//prevValue is a valley, now we search a peak
 		trend[0] = 2;
 		return prevValue;
 	}
 
-	if(value < prevValue && trend[0] == 2){
+	if(value < prevValue && (trend[0] == 2 || trend[0] == 0)){
 		//prevValue is a peak, now we search a valley
 		trend[0] = 1;
 		return prevValue;
 	}
 
-	cout << "Error! " << endl;
+	if(value == prevValue){
+		trend[0] = 0;
+	}
+	
+	if(value == 999 || prevValue == 999){
+		return 999;
+	}
+
+	cout << "no peak/valley found... " << endl;
 	return -2; //no peak or valley found!
 }
 

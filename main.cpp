@@ -125,12 +125,21 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	
 	vector<float> *e = new vector<float>;
 	vector<float> *t = new vector<float>;
+	list<Cycles> *cycles = new list<Cycles>;	
+
+	cout << "launching thread for checking input + peak&valleys...";
 	thread thread_pv(check_input_routine, e, t, &filename);
+	cout << "DONE" << endl;
+	cout << "launching thread for calculate the cycles......";
+	thread thread_cycles(rainflow_algorithm_dynamic, e, t, cycles);
+	
 	//cout << "first is executing..." << endl;
 	thread_pv.join();
+	thread_cycles.join();
 	
+	cout << "we have " << (*cycles).size() << " cycles!" <<endl;	
 	//cout << "main function " << tempTimes.temperatures.at(1) << endl;
-	
+	cout << "program is terminated" << endl;	
 
 	return 0;
 }
@@ -178,15 +187,16 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 
 		for(int i = oldSize -1 ; i < temperatures.size() && temperatures.size() >=2 && oldSize >=2 && check; i++){
 			
-			cout << "inside for, i is " << i << "passing these vlues to function " << temperatures.at(i-1) << " - " << temperatures.at(i) << " trend " << trend << endl;
+			//cout << "inside for, i is " << i << "passing these vlues to function " << temperatures.at(i-1) << " - " << temperatures.at(i) << " trend " << trend << endl;
 			//e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
 			tempVal = read_next_peak_valley_bw(temperatures.at(i-1), temperatures.at(i), &trend);
-			cout << "tempval is " << tempVal;
+			cout << "tempval is " << tempVal << endl;
 			
 			if(temperatures.at(i) == 999){ //fake stop signal
-				if(temperatures.at(i-1) != (*e).at((*e).size()-1)){
+				if(temperatures.at(i-1) != (*e).at((*e).size()-1)){ //so that i do not loose the last one
 					(*e).push_back(temperatures.at(i-1));	
 					(*t).push_back(times.at(i-1));
+					(*e).push_back(-1);
 				}
 				cout << " STOP signal received... terminating..." <<endl;
 				end = true;

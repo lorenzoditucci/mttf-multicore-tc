@@ -132,7 +132,7 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	cout << "DONE" << endl;
 	cout << "launching thread for calculate the cycles......";
 	thread thread_cycles(rainflow_algorithm_dynamic, e, t, cycles);
-	
+	cout << "DONE" << endl;	
 	//cout << "first is executing..." << endl;
 	thread_pv.join();
 	thread_cycles.join();
@@ -140,7 +140,16 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	cout << "we have " << (*cycles).size() << " cycles!" <<endl;	
 	//cout << "main function " << tempTimes.temperatures.at(1) << endl;
 	cout << "program is terminated" << endl;	
+	
+	cout << "results..." <<endl;
+	
+	for (std::list<Cycles>::iterator it=(*cycles).begin(); it != (*cycles).end(); it++){
+		cout << "range " << (*it).getRange();
+		cout << " time " << (*it).getTime() << endl;
+	}
 
+	
+		
 	return 0;
 }
 
@@ -154,7 +163,7 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 	bool first = true;
 	bool firstRead = true;
 	bool end = false;
-	int index = 1;
+	int index = 0;
 	int indexE = 0; //index for e...
 	
 	float tempVal = 0.0;
@@ -175,9 +184,9 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 			check = true;
 			cout << "first is true " << endl;
 			first = false;
-			if(temperatures.at(index-1) > temperatures.at(index)){
+			if(temperatures.at(0) > temperatures.at(1)){
 				trend = 2; //then we give this to the algorithm...
-			}else if(temperatures.at(index-1) < temperatures.at(index)){
+			}else if(temperatures.at(0) < temperatures.at(1)){
 				trend = 1;
 			}else{
 				trend = 0;
@@ -190,8 +199,8 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 			//cout << "inside for, i is " << i << "passing these vlues to function " << temperatures.at(i-1) << " - " << temperatures.at(i) << " trend " << trend << endl;
 			//e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
 			tempVal = read_next_peak_valley_bw(temperatures.at(i-1), temperatures.at(i), &trend);
-			cout << "tempval is " << tempVal << endl;
-			
+			//cout << "tempval is " << tempVal << endl;
+			cout << " values e " << tempVal << " times " << times.at(i-1) << endl;
 			if(temperatures.at(i) == 999){ //fake stop signal
 				if(temperatures.at(i-1) != (*e).at((*e).size()-1)){ //so that i do not loose the last one
 					(*e).push_back(temperatures.at(i-1));	
@@ -205,11 +214,12 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 			//update time at index...
 			if(tempVal != -2){
 				(*e).push_back(tempVal);
-				(*t).push_back(times.at(index));
+				(*t).push_back(times.at(i-1));
 				//t[indexE] = times.at(index);
 				indexE++;
 			}
 			oldSize++;
+			index++;
 		}
 		
 		cout << "e: ";

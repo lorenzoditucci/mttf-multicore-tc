@@ -115,7 +115,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, vector<float> times,
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
 						count++;
-						//printf("\n5range %d", abs(e[Y.back()] - e[Y.front()]));
+						//printf("\n5range %f", abs(e[Y.back()] - e[Y.front()]));
 
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
@@ -193,7 +193,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, vector<float> times,
 			case COUNT_DISCARD9: //Count range Y Discard the peak and valley of Y Go to Step 7
 
 						count++;
-						//printf("\n9range %d", abs(e[Y.back()] - e[Y.front()]));
+						//printf("\n9range %f", abs(e[Y.back()] - e[Y.front()]));
 
 						cycle.setTemp1(e[Y.back()]);
 						cycle.setTemp2(e[Y.front()]);
@@ -251,17 +251,17 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 	int curr_state = 1;
 
 	//list<Cycles> cycles;
-	cout << "RAINFLOW: start " << endl;
+	//cout << "RAINFLOW: start " << endl;
 	while(true){
 			//print_vector(e, i, s_i);
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						//e[i] = read_next_peak_valley(temperatures, j, N);
 						//t[i] = times.at((*j) - 1);
-						cout << "RAINFLOW: READ1" <<endl;
+						//cout << "RAINFLOW: READ1 - e size " << (*e).size() <<endl;
 						check = i < (*e).size() ? i : (*e).size()-1;
 						if( i != 0 && (*e).at(check) == -1){ 
-							cout << "RAINFLOW: termination simbol found, terminating...."<< endl;
+							//cout << "RAINFLOW: termination simbol found, terminating...."<< endl;
 							//curr_state = READ6;
 							//e[i] = 0;
 							//t[i] = 0;
@@ -270,10 +270,11 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 						}else if((*e).size() <= i){
 							//need to wait for a new value...
 							curr_state = READ1;
-							cout << "RAINFLOW: nothing new here, sleeping zzz size is " << (*e).size() << " i " << i << endl;
+							//cout << "RAINFLOW: nothing new here, sleeping zzz size is " << (*e).size() << " i " << i << endl;
 							this_thread::sleep_for (std::chrono::seconds(5));
 						}else{
-							cout << "RAINFLOW: increment i and go to 2... i " << i << endl;
+							//cout << "considering " << (*e).at(i) << endl;
+							//cout << "RAINFLOW: increment i and go to 2... i " << i << endl;
 							i++;
 							curr_state = FORM_RANGED_X_Y2;
 						}
@@ -284,12 +285,12 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 						break;
 
 			case FORM_RANGED_X_Y2: //Form ranges X and Y(if the vector contains less than 2 points past the starting point, go to Step I)
-						cout << "RAINFLOW: FORM_RANGED_X_Y2" <<endl;
+						//cout << "RAINFLOW: FORM_RANGED_X_Y2" <<endl;
 						X.clear();
 						Y.clear();
 
 						if(i - (s_i + 1) < 2){
-							cout << "not enough after the head..." << endl;
+							//cout << "not enough after the head..." << endl;
 							curr_state = READ1;
 							//inutile assegnamento
 							/*
@@ -308,7 +309,13 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 
 						Y.push_back(i-3);
 						Y.push_back(i-2);
+						
+						//cout << " X1 : " << (*e).at(i-2) << endl;
+						//cout << " X2 : " << (*e).at(i-1) << endl;
 
+						//cout << " Y1 : " << (*e).at(i-3) << endl;
+						//cout << " Y1 : " << (*e).at(i-2) << endl;
+						
 						//otherwise continue
 						curr_state = COMPARE3;
 						break;
@@ -316,10 +323,12 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 												//	b. IfX=Yand YcontainsS,gotoStep 1
 												//	c. If X > Y and Y containsS, go to Step 4
 												//	d. If X >= Y and Y does not contain S, go to Step 5
-						cout << "RAINFLOW: COMPARE3" <<endl;
+						//cout << "RAINFLOW: COMPARE3" <<endl;
 						tempValX = abs((*e).at(X.front()) - (*e).at(X.back()));
 						tempValY = abs((*e).at(Y.front()) - (*e).at(Y.back()));
-
+						
+						//cout << " tempValX : " << tempValX << " tempValY : " << tempValY << endl;
+						
 						if(tempValX < tempValY){
 							curr_state = READ1;
 						}else if(tempValX == tempValY && (s_i == Y.front() || s_i == Y.back())){
@@ -331,30 +340,30 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 						}
 						break;
 			case MOVE_S4: //Move S to the next point in the vector Go to Step 1
-						cout << "RAINFLOW: MOVE_S4" <<endl;
+						//cout << "RAINFLOW: MOVE_S4" <<endl;
 						s_i++;
 						//s = e[s_i];
-                       				//printf("STEP 4 - moving S, now is %d\n", s);
+                       				//printf("STEP 4 - moving Si, now is %d\n", s_i);
                         			curr_state = READ1;
 						break;
 			case COUNT_DISCARD5: //Count range Y - Discard the peak and valley of Y Go to Step 2
-						cout << "RAINFLOW: COUNT_DISCARD5" <<endl;
+						//cout << "RAINFLOW: COUNT_DISCARD5" <<endl;
 						count++;
-						//printf("\n5range %d", abs(e[Y.back()] - e[Y.front()]));
+						//printf("\n 5range %f", abs((*e).at(Y.back()) - (*e).at(Y.front())));
 
 						cycle.setTemp1((*e).at(Y.back()));
 						cycle.setTemp2((*e).at(Y.front()));
 						cycle.setRange(abs((*e).at(Y.back()) - (*e).at(Y.front())));
 						cycle.setTime((*t).at(i-3));//storing start time of the cycle
-						cout << "RAINFLOW: ALL SET, NOW STORE - range " << cycle.getRange() << endl;
+						//cout << "RAINFLOW: ALL SET, NOW STORE - range " << cycle.getRange() << endl;
 						(*cycles).push_back(cycle);
 
 						//cout << " Data is :" << cycle.temp1;
 						//cout << " and " << cycle.temp2 << endl;
 
 						//discard mean remove from vector
-						i = clean_reorganize(e, i);
-						cout << "i now is " << i << endl;
+						i = clean_reorganize(e,t,i);
+						//cout << "i now is " << i << endl;
 						curr_state = FORM_RANGED_X_Y2;
 						break;
 			/*case READ6: //Read the next peak or valley from the beginning of the vector E(n)(if the starting point, S, has already been reread, STOP)
@@ -446,12 +455,21 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 }
 
 
-int clean_reorganize(vector<float> *e, int i){
-
-	(*e).insert((*e).begin() + (i-3), (*e).at(i-1));
+int clean_reorganize(vector<float> *e, vector<float> *t, int i){
+	//cout << "RAINBOW:CLEAN_REORGANIZE: size before " << (*e).size() << endl;
+	float tempVal = (*e).at(i-1);
 	(*e).erase(((*e).begin() + (i-1)));	
 	(*e).erase(((*e).begin() + (i-2)));
+	(*e).erase(((*e).begin() + (i-3)));
+	(*e).insert((*e).begin() + (i-3), tempVal);
 
+	tempVal = (*t).at(i-1);
+	//(*t).erase(((*t).begin() + (i-1)));
+	//(*t).erase(((*e).begin() + (i-2)));
+	//(*t).erase(((*e).begin() + (i-3)));
+	//(*t).insert((*e).begin() + (i-3), tempVal);
+
+	//cout << "RAINBOW:CLEAN_REORGANIZE: size after " << (*e).size() << endl;
 	i = i - 2;
 
 	return i;

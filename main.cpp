@@ -38,6 +38,7 @@ typedef struct TempTimes{
 	vector<float> times;
 }TempTimes;
 
+void calculate_reliability(list<Cycles> *cycles);
 streampos check_data_from_file(vector<float> *temperatures, vector<float> *times, streampos  position, string filename, bool *firstRead);	
 void check_input_routine(vector<float> *e,vector<float> *t, string *filename);
 void printNumbers(TempTimes *tempTimesp);
@@ -133,20 +134,28 @@ int run_dynamic(string filename, vector<float> temperature, vector<float> times)
 	cout << "launching thread for calculate the cycles......";
 	thread thread_cycles(rainflow_algorithm_dynamic, e, t, cycles);
 	cout << "DONE" << endl;	
+	cout << "launching thread for calculate the reliability using a weibull distribution ... ";
+	thread thread_weibull(calculate_reliability, cycles);
+	cout << "DONE" << endl;
+	
 	//cout << "first is executing..." << endl;
 	thread_pv.join();
 	thread_cycles.join();
-	
-	cout << "we have " << (*cycles).size() << " cycles!" <<endl;	
+	cout << "we have " << (*cycles).size() - 1 << " cycles!" <<endl;
+
+	thread_weibull.join();	
 	//cout << "main function " << tempTimes.temperatures.at(1) << endl;
 	cout << "program is terminated" << endl;	
 	
 	cout << "results..." <<endl;
 	
 	for (std::list<Cycles>::iterator it=(*cycles).begin(); it != (*cycles).end(); it++){
-		cout << "range " << (*it).getRange();
-		cout << " time " << (*it).getTime() << endl;
+		if((*it).getRange() != -99999){ //should check also the others..
+			cout << "range " << (*it).getRange();
+			cout << " time " << (*it).getTime() << endl;
+		}
 	}
+
 
 	
 		
@@ -174,15 +183,15 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 	while(end != true){
 		
 		position = check_data_from_file(&temperatures,&times,  position, filename[0], &firstRead);	
-		cout << "temperatures size is " <<temperatures.size() << endl;
+		//cout << "temperatures size is " <<temperatures.size() << endl;
 		
 		if(temperatures.size() < 2){
-			cout << "size less then 2 .." << endl;
+			//cout << "size less then 2 .." << endl;
 			//continue;
 		}else if(first) {
 			oldSize = 2;
 			check = true;
-			cout << "first is true " << endl;
+			//cout << "first is true " << endl;
 			first = false;
 			if(temperatures.at(0) > temperatures.at(1)){
 				trend = 2; //then we give this to the algorithm...
@@ -200,7 +209,7 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 			//e[indexE] = read_next_peak_valley_bw(temperatures.at(index-1), temperatures.at(index), &trend);
 			tempVal = read_next_peak_valley_bw(temperatures.at(i-1), temperatures.at(i), &trend);
 			//cout << "tempval is " << tempVal << endl;
-			cout << " values e " << tempVal << " times " << times.at(i-1) << endl;
+			//cout << " values e " << tempVal << " times " << times.at(i-1) << endl;
 			if(temperatures.at(i) == 999){ //fake stop signal
 				if(temperatures.at(i-1) != (*e).at((*e).size()-1)){ //so that i do not loose the last one
 					(*e).push_back(temperatures.at(i-1));	
@@ -217,7 +226,7 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 				(*e).push_back(tempVal);
 				(*t).push_back(times.at(i-1));
 				
-				cout << "pushing  values e " << tempVal << " times " << times.at(i-1) << endl;
+				//cout << "pushing  values e " << tempVal << " times " << times.at(i-1) << endl;
 				//t[indexE] = times.at(index);
 				indexE++;
 			}
@@ -421,6 +430,45 @@ float miner_rule(list<float> Ntci, list<Cycles> cycles){
 	return MTTF;
 
 }
+void calculate_reliability(list<Cycles> *cycles){
+	int i = 0;
+	float Ntc = 0.0;
+	float sum = 0.0;
+	float Beta = 1;
+	float R = 0.0;
+
+	bool flag = false;
+
+	//while((*cycles).size() == 0 && (*cycles).at(i).getRange() != -99999 && (*cycles).at(i).getTemp1() != -99999 && (*cycles).at(i).getTemp2() != -99999){
+	while(flag == false){
+		if((*cycles).size() == i ){
+			//sleep
+			cout << "RELIABILITY: nothing new to calculate..zz" << endl;
+			this_thread::sleep_for (std::chrono::seconds(5));
+		}else{
+			for(list<Cycles>::iterator it=std::next((*cycles).begin(), i); it != (*cycles).end() && flag == false; it++){
+				if((*it).getRange() == -99999 && (*it).getTemp1() == -99999 && (*it).getTemp2() == -99999){
+					cout << "RELIABILITY: termination cycle found... terminating..." << endl;
+					flag = true;
+				}
+				
+				//update the value of the R...
+				Ntc = coffin_manson(*it);
+				sum += ((*it).getTime() / Ntc);
+				cout << "NTC is " << Ntc << " the sum now is..." << sum << endl;
+				i++;
+			}
+			//give an intermediate result of the R...
+			R = pow(sum, Beta);
+			R = exp(-R);
+			cout << "UPDATED R : "<< R << endl; 
+		}
+	}
+		
+	cout << " FINAL VALUE R = "  << R << endl;
+  
+}
+
 float coffin_manson(Cycles cycle){
 	//Ntc[i] = Atc(dT[i] - Tth)^-b * e^(Eatc/(KTmax[i]))
 
@@ -453,7 +501,8 @@ void show_usage(string exename){
 	cout << "Usage : " << endl;
 	cout << exename << endl;
 	cout << "-h | --help show this help" <<endl;
-	cout << "-f | --file specify input file: <temperature1, time1,........,temperatureN, timeN> " <<endl; //to-do specify type of input!
+	cout << "-f | --file specify input file: <temperature1, time1,........,temperatureN, timeN> " <<endl;
+	cout << "TO terminate the dynamic algorithm just add 999,something as final value in the file! " <<endl;
 	cout << "-d | --dynamic | -s | --static choose the version of the algorithm" << endl;
 	return;
 }

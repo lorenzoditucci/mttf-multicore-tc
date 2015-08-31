@@ -17,3 +17,4 @@ int clean_reorganize(vector<float> *e, vector<float> *t,  int i);
 int clean_reorganize(float *e, int i);
 void print_vector(int *e, int N, int s);
 Cycles create_error_cycle(Cycles cycle);
+Cycles create_stop_cycle(Cycles cycle);

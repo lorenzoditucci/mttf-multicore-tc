@@ -266,6 +266,8 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 							//e[i] = 0;
 							//t[i] = 0;
 							//i--;
+							Cycles cycle = create_stop_cycle(cycle);
+							(*cycles).push_back(cycle);
 							return cycles;
 						}else if((*e).size() <= i){
 							//need to wait for a new value...
@@ -576,6 +578,14 @@ void print_vector(int *e, int N, int s){
         printf(" %d ", e[i]);
     }
     printf("\n");
+}
+
+Cycles create_stop_cycle(Cycles cycle){
+	cycle.setTemp1(-99999);
+	cycle.setTemp2(-99999);
+	cycle.setRange(-99999);
+	return cycle;
+
 }
 
 Cycles create_error_cycle(Cycles cycle){

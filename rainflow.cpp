@@ -457,6 +457,7 @@ list<Cycles>* rainflow_algorithm_dynamic(vector<float> *e, vector<float> *t, lis
 
 int clean_reorganize(vector<float> *e, vector<float> *t, int i){
 	//cout << "RAINBOW:CLEAN_REORGANIZE: size before " << (*e).size() << endl;
+	cout << "RAINFLOW size e " << (*e).size() << " size t " << (*t).size() << endl;
 	float tempVal = (*e).at(i-1);
 	(*e).erase(((*e).begin() + (i-1)));	
 	(*e).erase(((*e).begin() + (i-2)));
@@ -464,10 +465,10 @@ int clean_reorganize(vector<float> *e, vector<float> *t, int i){
 	(*e).insert((*e).begin() + (i-3), tempVal);
 
 	tempVal = (*t).at(i-1);
-	//(*t).erase(((*t).begin() + (i-1)));
-	//(*t).erase(((*e).begin() + (i-2)));
-	//(*t).erase(((*e).begin() + (i-3)));
-	//(*t).insert((*e).begin() + (i-3), tempVal);
+	(*t).erase(((*t).begin() + (i-1)));
+	(*t).erase(((*t).begin() + (i-2)));
+	(*t).erase(((*t).begin() + (i-3)));
+	(*t).insert((*t).begin() + (i-3), tempVal);
 
 	//cout << "RAINBOW:CLEAN_REORGANIZE: size after " << (*e).size() << endl;
 	i = i - 2;

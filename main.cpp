@@ -206,6 +206,7 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 					(*e).push_back(temperatures.at(i-1));	
 					(*t).push_back(times.at(i-1));
 					(*e).push_back(-1);
+					//(*t).push_back(-1);
 				}
 				cout << " STOP signal received... terminating..." <<endl;
 				end = true;
@@ -215,6 +216,8 @@ void check_input_routine(vector<float> *e,vector<float> *t, string *filename){
 			if(tempVal != -2){
 				(*e).push_back(tempVal);
 				(*t).push_back(times.at(i-1));
+				
+				cout << "pushing  values e " << tempVal << " times " << times.at(i-1) << endl;
 				//t[indexE] = times.at(index);
 				indexE++;
 			}

@@ -5,7 +5,7 @@
 
 using namespace std;
 int main(int argc, char* argv[]){
-	string filename = "10000peaks_valleys2.txt";
+	string filename = "debug.txt";
 	int N = 10000;
 	
 	ofstream file;
@@ -13,8 +13,8 @@ int main(int argc, char* argv[]){
 	
 	int tempVal = 0;
 	
-	int val1 = 1;
-	int val2 = RAND_MAX - val1;
+	int val1 = 40;
+	int val2 = 50;
 		
 	bool flag = true;
 	
@@ -32,8 +32,15 @@ int main(int argc, char* argv[]){
 		} 
 		*/
 		//cout << "tempVal " << tempVal << endl;
+		
+		if( i == 0){
+			//where to go?
+			flag = tempVal > val1 + 0.5 * val2 ? false  : true;
+		}
+		
+		cout << " numbers from " << val1 << " to " << (val2 + val1)  << " TEMPVAL " << tempVal << " flag is " << flag << endl;
 		if(flag == false){
-			val1 = 1;
+			val1 = 40;
 			val2 = tempVal - val1;
 			flag = true;
 		}else{
@@ -43,8 +50,8 @@ int main(int argc, char* argv[]){
 			//	val1 = tempVal;
 			//}
 			
-			val1 = tempVal;
-			val2 = RAND_MAX - val1;
+			val1 = tempVal + 1;
+			val2 = 90 - val1;
 			flag = false;
 		}
 		//cout << "rand number between "<<val1<< " and " << val2 << endl;

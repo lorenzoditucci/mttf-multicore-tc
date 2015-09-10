@@ -47,6 +47,7 @@ list<Cycles> rainflow_algorithm(vector<float> temperatures, vector<float> times,
 		switch(curr_state){
 			case READ1 : //Read the next peak or valley (if out of data, go to Step 6)
 						e[i] = read_next_peak_valley(temperatures, j, N);
+						cout << "PEAK/VALLEY " << e[i] << endl;
 						t[i] = times.at((*j) - 1);
 						if(e[i] == -1){
 							curr_state = READ6;

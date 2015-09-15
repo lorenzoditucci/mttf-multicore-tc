@@ -361,6 +361,7 @@ int run_static(string filename, vector<float> temperature, vector<float> times){
 
 	cout << "MTTF " << MTTF << endl;	
 	
+	cout << "years : " << MTTF/(24 * 365) << endl;	
 	return 0;
 }
 
@@ -418,7 +419,7 @@ float miner_rule(list<float> Ntci, list<Cycles> cycles){
 	//cout << " Ntc " << Ntc << endl;
 	Ntc = m/Ntc;
 
-	//cout << "Ntc is "<<Ntc <<endl;
+	cout << "Ntc is "<<Ntc <<endl;
 
 	float MTTF = 0.0;
 	for (std::list<Cycles>::iterator it=cycles.begin(); it != cycles.end(); ++it){
@@ -474,13 +475,14 @@ float coffin_manson(Cycles cycle){
 
 	//the variable have been defined following section 9.2 of the paper [3]
 	//variable definition
-	int Atc = 1; //***empirically determinedconstant
+	int Atc = 11; //***empirically determinedconstant
 	float dTi = abs(cycle.getTemp1() - cycle.getTemp2()); //amplitude of the ith thermal cycle
 	int Tth = 0; //**temperature at which elastic deformation begins
-	int b = 6; //**Coffin-Manson exponent constant
+	//int b = 6; //**Coffin-Manson exponent constant
+	int b = 9; //JEP122F
 	float Eatc = 0.5; //**activation energy
 	float Tmaxi = max(cycle.getTemp1(), cycle.getTemp2()); //maximum temperature in the ith thermal cycle.
-	int K = 1;
+	float K = 8.6173324 * pow(10, -5); //Boltzman eV/°K
 
 	float Ntci = 0.0;
 	Ntci += Atc * (dTi - Tth);

@@ -1,0 +1,18 @@
+The Tool calculate the reliability of a given system both in a static/period case and in a dynamic/online case.
+
+In order to build the project we used CMake:
+	- Inside the mttf-multicore-tc folder type "ccmake ."
+	- type "C"
+	- type "G" to generate
+
+Now, all the code is compiled. To run the system in the static scenario you can type from command Line
+
+./mttf-multicore-tc -f [input_file_name] | --file [input fyle name] -s | --static
+
+If you want to run the code in the dynamic scenario type
+
+./mttf-multicore-tc -f [input_file_name] | --file [input fyle name] -d | --dynamic
+
+In this second case, the tool read the temperatures online from a file. In order to stop the computation and output the final result you need to add "999,1" as final couple temperature,time.
+
+In the folder there is also a program to generate random temperatures inside the "file_generator" folder. You can directly modify the main code of the program to set how many temperatures to generate and in what interval.
